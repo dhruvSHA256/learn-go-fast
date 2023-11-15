@@ -14,3 +14,11 @@ go mod init
 goroutines
 channels
 generics
+
+
+## Resources
+- https://docs.google.com/document/d/1Zb9GCWPKeEJ4Dyn2TkT-O3wJ8AFc-IMxZzTugNCjr-8/edit
+- https://go.dev/learn/
+- https://exercism.org/tracks/go/concepts
+- https://gobyexample.com/
+- https://www.karanpratapsingh.com/blog/learn-go-the-complete-course
