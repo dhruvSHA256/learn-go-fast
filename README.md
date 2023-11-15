@@ -10,3 +10,7 @@ module:
     collection of package
 
 go mod init
+
+goroutines
+channels
+generics
