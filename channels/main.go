@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -45,23 +46,28 @@ func prod(a []string, chn chan string) {
 func consumer(x string) {
 	fmt.Println("Consumeing ", x)
 }
+
+func ff(wt *sync.WaitGroup) {
+	fmt.Println("hello")
+	wt.Done()
+}
 func main() {
 	start := time.Now()
 	defer func() {
 		fmt.Println(time.Since(start))
 	}()
-	// channel can share data btw goroutines and main
-	chn := make(chan string, 4)
-	a := []string{"a", "b", "c", "d"}
-	go prod(a, chn)
-	// read data from channel
-	for {
-		x, open := <-chn
-		if !open {
-			break
-		}
-		consumer(x)
+
+	// wait for goroutines to complete
+	var wt sync.WaitGroup
+	numGoroutines := 3
+	wt.Add(numGoroutines)
+	// wt.Done just subtracts 1 from numGoroutines
+	for i := 0; i < numGoroutines; i++ {
+		go ff(&wt)
 	}
+	// if we call wait before done then it will be a deadlock
+	// wt.Wait() just waits till value of numGoroutines is 0
+	wt.Wait()
 
 	// myChannel := make(chan int)
 	// myChannel2 := make(chan int)
