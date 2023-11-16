@@ -31,8 +31,19 @@ func doWork(done <-chan bool) {
 func fn(x string, chn chan bool) {
 	fmt.Println("printing ", x)
 	time.Sleep(1 * time.Second)
-    // send data to channel
+	// send data to channel
 	chn <- true
+}
+func prod(a []string, chn chan string) {
+	for _, x := range a {
+		fmt.Println("sending ", x, " to channel")
+		chn <- x
+	}
+	close(chn)
+}
+
+func consumer(x string) {
+	fmt.Println("Consumeing ", x)
 }
 func main() {
 	start := time.Now()
@@ -40,13 +51,17 @@ func main() {
 		fmt.Println(time.Since(start))
 	}()
 	// channel can share data btw goroutines and main
-	chn := make(chan bool)
+	chn := make(chan string, 4)
 	a := []string{"a", "b", "c", "d"}
-	for _, x := range a {
-		go fn(x, chn)
+	go prod(a, chn)
+	// read data from channel
+	for {
+		x, open := <-chn
+		if !open {
+			break
+		}
+		consumer(x)
 	}
-    // read data from channel
-    <-chn
 
 	// myChannel := make(chan int)
 	// myChannel2 := make(chan int)
