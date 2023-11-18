@@ -51,23 +51,49 @@ func ff(wt *sync.WaitGroup) {
 	fmt.Println("hello")
 	wt.Done()
 }
+
+var (
+	count  int
+	mu     sync.Mutex
+	wrLock sync.RWMutex
+)
+
+func increment() {
+	mu.Lock()
+	count++
+	mu.Unlock()
+}
+
+func read() {
+	wrLock.RLock()
+	fmt.Println(count)
+	wrLock.RUnlock()
+}
+
 func main() {
 	start := time.Now()
 	defer func() {
 		fmt.Println(time.Since(start))
 	}()
-
-	// wait for goroutines to complete
-	var wt sync.WaitGroup
-	numGoroutines := 3
-	wt.Add(numGoroutines)
-	// wt.Done just subtracts 1 from numGoroutines
-	for i := 0; i < numGoroutines; i++ {
-		go ff(&wt)
+	iterations := 1000
+	for i := 0; i < iterations; i++ {
+		go increment()
+		go read()
 	}
-	// if we call wait before done then it will be a deadlock
-	// wt.Wait() just waits till value of numGoroutines is 0
-	wt.Wait()
+	time.Sleep(5 * time.Second)
+	fmt.Println("Result: ", count)
+
+	// // wait for goroutines to complete
+	// var wt sync.WaitGroup
+	// numGoroutines := 3
+	// wt.Add(numGoroutines)
+	// // wt.Done just subtracts 1 from numGoroutines
+	// for i := 0; i < numGoroutines; i++ {
+	// 	go ff(&wt)
+	// }
+	// // if we call wait before done then it will be a deadlock
+	// // wt.Wait() just waits till value of numGoroutines is 0
+	// wt.Wait()
 
 	// myChannel := make(chan int)
 	// myChannel2 := make(chan int)
