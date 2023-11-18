@@ -93,21 +93,46 @@ func main() {
 	defer func() {
 		fmt.Println(time.Since(start))
 	}()
-	iterations := 1000
-	// once allow task to completed only once when multiple goroutines are doing it
-	var once sync.Once
+	// iterations := 1000
+	// resource pool
+	var numMemPieces int
+	memPool := &sync.Pool{
+		New: func() interface{} {
+			numMemPieces++
+			mem := make([]byte, 1032)
+			return &mem
+		},
+	}
+
+	const numWorkers = 1024 * 1024
 	var wg sync.WaitGroup
-	wg.Add(iterations)
-	for i := 0; i < iterations; i++ {
+	wg.Add(numWorkers)
+	for i := 0; i < numWorkers; i++ {
 		go func() {
-			if doTask() {
-				once.Do(markCompleted)
-			}
+			mem := memPool.Get().(*[]byte)
+			// use mem and put it back in pool
+			memPool.Put(mem)
 			wg.Done()
 		}()
+
 	}
 	wg.Wait()
-	checkCompleteTask()
+	fmt.Printf("%d numMemPieces were created", numMemPieces)
+
+	// once allow task to completed only once when multiple goroutines are doing it
+	// var once sync.Once
+	// var wg sync.WaitGroup
+	// wg.Add(iterations)
+	// for i := 0; i < iterations; i++ {
+	// 	go func() {
+	// 		if doTask() {
+	// 			once.Do(markCompleted)
+	// 		}
+	// 		wg.Done()
+	// 	}()
+	// }
+	// wg.Wait()
+	// checkCompleteTask()
 
 	// locks
 	// for i := 0; i < iterations; i++ {
