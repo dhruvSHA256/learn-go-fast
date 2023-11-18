@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"sync"
 	"time"
 )
@@ -52,22 +53,39 @@ func ff(wt *sync.WaitGroup) {
 	wt.Done()
 }
 
-var (
-	count  int
-	mu     sync.Mutex
-	wrLock sync.RWMutex
-)
+// var (
+// 	count  int
+// 	mu     sync.Mutex
+// 	wrLock sync.RWMutex
+// )
 
-func increment() {
-	mu.Lock()
-	count++
-	mu.Unlock()
+// func increment() {
+// 	mu.Lock()
+// 	count++
+// 	mu.Unlock()
+// }
+
+// func read() {
+// 	wrLock.RLock()
+// 	fmt.Println(count)
+// 	wrLock.RUnlock()
+// }
+
+var completed bool
+
+func markCompleted() {
+	fmt.Println("Marking Completed task")
+	completed = true
 }
-
-func read() {
-	wrLock.RLock()
-	fmt.Println(count)
-	wrLock.RUnlock()
+func doTask() bool {
+	return 0 == rand.Intn(10)
+}
+func checkCompleteTask() {
+	if completed {
+		fmt.Println("Completed task")
+	} else {
+		fmt.Println("Not completed")
+	}
 }
 
 func main() {
@@ -76,12 +94,28 @@ func main() {
 		fmt.Println(time.Since(start))
 	}()
 	iterations := 1000
+	// once allow task to completed only once when multiple goroutines are doing it
+	var once sync.Once
+	var wg sync.WaitGroup
+	wg.Add(iterations)
 	for i := 0; i < iterations; i++ {
-		go increment()
-		go read()
+		go func() {
+			if doTask() {
+				once.Do(markCompleted)
+			}
+			wg.Done()
+		}()
 	}
-	time.Sleep(5 * time.Second)
-	fmt.Println("Result: ", count)
+	wg.Wait()
+	checkCompleteTask()
+
+	// locks
+	// for i := 0; i < iterations; i++ {
+	// 	go increment()
+	// 	go read()
+	// }
+	// time.Sleep(5 * time.Second)
+	// fmt.Println("Result: ", count)
 
 	// // wait for goroutines to complete
 	// var wt sync.WaitGroup
