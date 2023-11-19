@@ -20,10 +20,20 @@ package types:
 - executable (main)
 - reusable
 
+value types:
+int, float, string, bool, struct
+passed by value to funcs, so use pointer to change underlying value
+
+reference types:
+slice, maps, channels, pointers, functions
+passed by reference by default
+
 ## Learn about these
 goroutines
-channels
+channels: like queue to pass data btw goroutines
+waitgroup
 generics
+interfaces
 
 ## Resources
 - https://docs.google.com/document/d/1Zb9GCWPKeEJ4Dyn2TkT-O3wJ8AFc-IMxZzTugNCjr-8/edit
