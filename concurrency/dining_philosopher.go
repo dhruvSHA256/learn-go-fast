@@ -35,7 +35,7 @@ func eat(p int, l, r *sync.Mutex) {
 	fmt.Println(p, " is done eating")
 }
 
-func main() {
+func runDiningPhilosopher() {
 	wg.Add(len(philosopher))
 	l := &sync.Mutex{}
 	for _, p := range philosopher {

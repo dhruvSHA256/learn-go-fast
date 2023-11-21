@@ -34,6 +34,7 @@ channels: like queue to pass data btw goroutines
 waitgroup
 generics
 interfaces
+concurrency patterns like pipeline, fan in, fan out, semaphores, workerpool
 
 ## Resources
 - https://docs.google.com/document/d/1Zb9GCWPKeEJ4Dyn2TkT-O3wJ8AFc-IMxZzTugNCjr-8/edit
